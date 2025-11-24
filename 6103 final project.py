@@ -1,5 +1,12 @@
-#scratch code
-#6103 final project  
+#wtf is happening w the acs sampled dataframe 
+
+
+#6103 final project 
+#issue 1- data acquisition (nearly done)
+#issue 2- data wrangling (processing/ cleaning)
+#issue 3- modeling (eda, stats, regression, one other maybe)
+#issue 4- analyzing the results
+#issue 5- writing up the report 
 
 #in r console 
 #library(reticulate)
@@ -12,6 +19,7 @@ import pandas as pd
 import os 
 import zipfile
 import openpyxl
+import gzip
 
 #set wd
 data_dir = "/Users/bayleewechsler/6103 Final Project"
@@ -22,7 +30,7 @@ def read_csv_safe(file_like):
         return pd.read_csv(file_like, encoding='utf-8')
     except (UnicodeDecodeError, pd.errors.EmptyDataError):
         pass
-    # second attempt
+    #second try
     try:
         return pd.read_csv(file_like, encoding='cp1252')
     except (UnicodeDecodeError, pd.errors.EmptyDataError):
@@ -83,5 +91,67 @@ list(icpsr_df.keys())
 with zipfile.ZipFile(icpsr_zip, 'r') as z:
     print(z.namelist())
 
-#load ACS microdata)
-usa_dat = pd.read_csv(os.path.join(data_dir, "usa_00002.dat.gz"), compression='gzip')
+
+#usa_dat = pd.read_csv(os.path.join(data_dir, "usa_00002.dat.gz"), compression='gzip')
+#ACS file too big, need a smaller sample
+input_file = "usa_00002.dat.gz"     
+output_file = "usa_00002_sample.csv.gz"
+sample_frac = 0.05                 
+chunksize = 500000                
+
+sampled_chunks = []
+
+#load ACS microdata
+for chunk in pd.read_csv(input_file, 
+                         compression='gzip', 
+                         chunksize=chunksize):
+    sampled = chunk.sample(frac=sample_frac)
+    sampled_chunks.append(sampled)
+
+#combine all sampled ACS chunks
+sampled_acs_df = pd.concat(sampled_chunks)
+###fix acs dataframe, looks weird ###
+#go back and remove everything I added that isn't a necessary function/package 
+#and/or dataframe
+
+
+
+#merge all dataframes together (except acs) 
+#do I have common columns for merges?
+merge1= pd.merge(year_end_prison,bjs_jail, on="shared column name", how= "outer")
+merge2= pd.merge(merge1,county_treatment_courts, on="shared column name", how= "outer")
+merge3= pd.merge(merge2,incarceration_county, on="shared column name", how= "outer")
+merge4= pd.merge(merge3,incarceration_state, on="shared column name", how= "outer")
+merge5= pd.merge(merge4,treatment_facilities, on="shared column name", how= "outer")
+almost_all_df= pd.merge(merge5,icpsr_df, on="shared column name", how= "outer")
+#all thats left is acs
+
+#identify / drop NAs 
+almost_all_df.isna().sum()
+#almost_all_df.dropna()
+#almost_all_df.fillna(0)
+almost_all_df.info()
+
+
+#var type needs to be right, factor, rename columns/ variables for legibility
+almost_all_df.rename()
+
+#other data cleaning? 
+
+#check out data- what do we have
+almost_all_df.head()
+
+
+##circle back to research question (alternatives to incarceration 
+#as it impacts recidivism and post-release economic outcomes)
+#EDA
+##exploratory stats
+##some graphs (include titles, subtitles, labels, etc)
+
+#regression 
+
+
+#analyze results and start shaping out the presentation
+
+
+
