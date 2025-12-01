@@ -8,7 +8,7 @@
 #in r console 
 #library(reticulate)
 #py_require("pandas")
-#py_install("openpyxl")
+#py_require("openpyxl")
 #reticulate::py_install("uszipcode", envname = "r-reticulate")
 
 #import packages
@@ -150,6 +150,7 @@ for var_id, cat_map in categories.items():
 for var_id, meta in variables.items():
     if var_id in acs_sampled.columns and meta["type"].lower() == "numeric":
         acs_sampled[var_id] = pd.to_numeric(acs_sampled[var_id], errors="coerce")
+
 #process acs data
 acs_sampled["YEAR"] = 2022
 acs_sampled["YEAR"] = pd.to_numeric(acs_sampled["YEAR"], errors="coerce").astype("Int64")
@@ -236,26 +237,24 @@ def fix_courts_df(df, year):
 county_treatment_courts = fix_courts_df(county_treatment_courts, 2023)
 county_treatment_courts_2024 = fix_courts_df(county_treatment_courts_2024, 2024)
 
-#process incarceration data 
+#process incarceration data
 incarceration_county = incarceration_county.rename(columns={'year': 'Year'})
-incarceration_state["Year"] = pd.to_numeric(incarceration_state["Year"], errors="coerce").fillna(-1).astype(int)
+incarceration_county["Year"] = pd.to_numeric(incarceration_county["Year"], errors="coerce").fillna(-1).astype(int)
 incarceration_county = incarceration_county.fillna(incarceration_county.median(numeric_only=True))
 incarceration_county['fips'] = incarceration_county['fips'].astype(str).str.zfill(5)
-incarceration_county = incarceration_county.fillna(incarceration_county.median(numeric_only=True))
 incarceration_state = incarceration_state.rename(columns={'year':'Year'})
-incarceration_county["Year"] = pd.to_numeric(incarceration_county["Year"], errors="coerce").fillna(-1).astype(int)
+if 'Year' in incarceration_state.columns:
+    incarceration_state["Year"] = pd.to_numeric(incarceration_state["Year"], errors="coerce").fillna(-1).astype(int)
 incarceration_state = incarceration_state.fillna("mul")
 
-#process samhsa data 
+#process SAMHSA data
 zip_fips = pd.read_csv(
     "https://www2.census.gov/geo/docs/maps-data/data/rel/zcta_county_rel_10.txt",
-    sep=",")
-zip_fips = zip_fips[['ZCTA5','COUNTY']]
+    sep=",")[['ZCTA5','COUNTY']]
 zip_fips.rename(columns={'ZCTA5':'zip','COUNTY':'county_fips'}, inplace=True)
 zip_fips['zip'] = zip_fips['zip'].astype(str).str.zfill(5)
 zip_fips['county_fips'] = zip_fips['county_fips'].astype(str).str.zfill(5)
 
-#samhsa cleaning function
 def clean_samhsa_county(df, year):
     df = df.copy()
     df.columns = df.columns.str.lower().str.strip().str.replace(" ", "_")
@@ -272,12 +271,13 @@ sa_2022_clean = clean_samhsa_county(sa_2022, 2022)
 sa_2023_clean = clean_samhsa_county(sa_2023, 2023)
 sa_2024_clean = clean_samhsa_county(sa_2024, 2024)
 
-#samhsa data processing
 for df, t in [(mh_2022_clean,'MH'),(mh_2023_clean,'MH'),(mh_2024_clean,'MH'),
               (sa_2022_clean,'SA'),(sa_2023_clean,'SA'),(sa_2024_clean,'SA')]:
     df['type'] = t
+
 all_samhsa = pd.concat([mh_2022_clean, mh_2023_clean, mh_2024_clean,
                         sa_2022_clean, sa_2023_clean, sa_2024_clean], ignore_index=True)
+
 samhsa_wide = all_samhsa.pivot_table(
     index=['county_fips','Year'],
     columns='type',
@@ -286,46 +286,96 @@ samhsa_wide = all_samhsa.pivot_table(
 samhsa_wide.rename(columns={'county_fips':'fips'}, inplace=True)
 
 #county-level data merge
-incarceration_county['fips'] = incarceration_county['fips'].astype(str).str.zfill(5)
-samhsa_wide['fips'] = samhsa_wide['fips'].astype(str).str.zfill(5)
-county_treatment_courts['fips'] = county_treatment_courts['fips'].astype(str).str.zfill(5)
-county_treatment_courts_2024['fips'] = county_treatment_courts_2024['fips'].astype(str).str.zfill(5)
-county_df = (
-    incarceration_county
+for df in [incarceration_county, samhsa_wide, county_treatment_courts, county_treatment_courts_2024]:
+    df['fips'] = df['fips'].astype(str).str.zfill(5)
+
+county_df = (incarceration_county
     .merge(samhsa_wide, on=['Year','fips'], how='left')
     .merge(county_treatment_courts, on=['Year','fips'], how='left')
     .merge(county_treatment_courts_2024, on=['Year','fips'], how='left'))
+
 for col in ['MH','SA']:
     if col in county_df.columns:
         county_df[col] = county_df[col].fillna(0)
+
 county_df["Year"] = pd.to_numeric(county_df["Year"], errors="coerce").fillna(-1).astype(int)
 
 #state-level data merge
+year_end_prison_long['state_abbr'] = year_end_prison_long['state_abbr'].astype(str)
+incarceration_state['state_abbr'] = incarceration_state['state_abbr'].astype(str)
 state_df = year_end_prison_long.merge(
     incarceration_state,
     on=["state_abbr", "Year"],
     how="outer")
 
-#person-level data merge 
+#aggregate ACS to state-year
+acs_numeric_cols = [c for c in acs_sampled.columns if pd.api.types.is_numeric_dtype(acs_sampled[c])]
+state_acs = acs_sampled.groupby('STATEFIP', as_index=False)[acs_numeric_cols].mean()
+state_acs.rename(columns={'STATEFIP':'state_abbr'}, inplace=True)
+state_acs['state_abbr'] = state_acs['state_abbr'].astype(str)
+state_df = state_df.merge(state_acs, on='state_abbr', how='left')
+
+#state-level cleaning
+state_drop_cols = ['state_name_x','state_name_y','region']
+state_df = state_df.drop(columns=[c for c in state_drop_cols if c in state_df.columns], errors='ignore')
+state_df = state_df.loc[:, ~state_df.columns.duplicated()]
+
+binary_cols = [c for c in state_df.columns if 'Co-occurring' in c or c.startswith('is_')]
+categorical_cols = [c for c in ['state_abbr','division','urbanicity'] if c in state_df.columns]
+state_df[binary_cols] = state_df[binary_cols].apply(pd.to_numeric, errors='coerce').astype('category')
+state_df[categorical_cols] = state_df[categorical_cols].astype('category')
+
+for c in state_df.columns:
+    if c in binary_cols or c in categorical_cols:
+        continue
+    if pd.api.types.is_float_dtype(state_df[c]):
+        state_df[c] = state_df[c].replace([np.inf, -np.inf], np.nan)
+        if (state_df[c].dropna() % 1 == 0).all():
+            state_df[c] = state_df[c].astype('Int64')
+        else:
+            state_df[c] = state_df[c].astype('float64')
+
+state_df['Year'] = pd.to_numeric(state_df['Year'], errors='coerce').replace([np.inf, -np.inf], np.nan).fillna(-1).astype(int)
+#incorporate bjs_jail data as federal benchmark
+bjs_jail_numeric = bjs_jail.copy()
+for col in bjs_jail_numeric.columns:
+    if col != 'Year':
+        bjs_jail_numeric[col] = pd.to_numeric(bjs_jail_numeric[col].str.replace(',', ''), errors='coerce')
+state_df = state_df.merge(
+    bjs_jail_numeric,
+    on='Year',
+    how='left',
+    suffixes=('', '_US'))
+state_df = state_df.rename(columns={
+    'Confined population/a_US': 'confined_pop_US',
+    'Average daily population/b_US': 'avg_daily_pop_US',
+    'Annual admissions/c_US': 'annual_adm_US',
+    'Jail incarceration rate per 100,000 US residents/d_US': 'jail_rate_US'})
+
+#person-level data merge
 person_df = icpsr_data.merge(
     acs_sampled,
     left_on=['STATE','Year'],
     right_on=['STATEFIP','YEAR'],
     how='left')
-
 person_df = person_df.loc[:, ~person_df.columns.duplicated()]
+person_df = person_df.drop(columns=['YEAR','STATEFIP'], errors='ignore')
 person_df["Year"] = pd.to_numeric(person_df["Year"], errors="coerce").fillna(-1).astype(int)
 
-#bjs data is federal, include in all as a comparison?
+binary_cols_person = [c for c in person_df.columns if 'Co-occurring' in c or c.startswith('is_')]
+categorical_cols_person = [c for c in ['STATE','STATEFIP','fips','region'] if c in person_df.columns]
+person_df[binary_cols_person] = person_df[binary_cols_person].apply(pd.to_numeric, errors='coerce').astype('category')
+person_df[categorical_cols_person] = person_df[categorical_cols_person].astype('category')
 
-#make sure merged dfs are good (NAs and var types)
-state_df['state_name_x'].unique().tolist()
-state_df.isna().sum()
-state_df.info()
-county_df.isna().sum()
-county_df.info()
-person_df.isna().sum()
-person_df.info()
+for c in person_df.columns:
+    if c in binary_cols_person or c in categorical_cols_person:
+        continue
+    if pd.api.types.is_float_dtype(person_df[c]):
+        person_df[c] = person_df[c].replace([np.inf, -np.inf], np.nan)
+        if (person_df[c].dropna() % 1 == 0).all():
+            person_df[c] = person_df[c].astype('Int64')
+        else:
+            person_df[c] = person_df[c].astype('float64')
 
 
 ##circle back to research question (alternatives to incarceration 
@@ -333,7 +383,6 @@ person_df.info()
 #EDA
 ##exploratory stats
 ##some graphs (include titles, subtitles, labels, etc)
-
 #regression 
 
 
