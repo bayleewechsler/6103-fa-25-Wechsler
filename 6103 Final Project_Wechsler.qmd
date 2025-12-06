@@ -1,0 +1,99 @@
+---
+title: "6103 Final Project"
+author: "Baylee Wechsler"
+format: 
+  html:
+    code-fold: true
+editor: visual
+---
+## Introduction
+
+Description etc etc
+
+## Data
+Describe source, vars, data dictionary 
+```{python load data}
+
+```
+
+## Methodology 
+
+Describe cleaning, processing, and manipulating data. 
+```{python clean data}
+
+```
+
+Summary statistics here 
+```{python summary stats}
+
+```
+
+## Exploratory Data Analysis
+
+```{python EDA 1}
+
+```
+
+
+```{python EDA 2}
+
+```
+
+
+```{python EDA 3}
+
+```
+
+## Modeling
+
+```{python modeling 1}
+
+```
+
+```{python modeling 2}
+
+```
+
+```{python modeling 3}
+
+```
+
+## Model Evaluation
+
+
+```{python model eval 1}
+
+```
+
+```{python model eval 2}
+
+```
+
+
+```{python model eval 3}
+
+```
+
+
+## Prediction 
+
+```{python train}
+
+```
+
+## Prediction Evaluation 
+
+```{python test}
+
+```
+
+## Conclusion 
+
+
+## References
+
+
+
+
+
+
