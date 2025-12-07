@@ -132,7 +132,7 @@ bjs_samhsa.isna().sum()
 #peek at merged data
 print(bjs_samhsa.head())
 
-#reference table for states to help with merges
+#reference table for states to help with acs merge
 state_ref = pd.DataFrame([
     ['01','Alabama','AL'], ['02','Alaska','AK'], ['04','Arizona','AZ'], ['05','Arkansas','AR'],
     ['06','California','CA'], ['08','Colorado','CO'], ['09','Connecticut','CT'], ['10','Delaware','DE'],
@@ -224,32 +224,69 @@ print(summary_table)
 
 #EDA
 
-#histm of avg jail population
+
+#histm of avg carc pop
 plt.figure(figsize=(8,5))
 sns.histplot(final_data['avg_jail_pop'], bins=15, kde=True)
-plt.title("Distribution of Average Jail Population")
-plt.xlabel("Average Jail Population")
+plt.title("Distribution of Average Incarcerated Population", fontsize=12, weight='bold', pad=30)
+plt.text(0.5, 1.02,"Most incarceration facilities house small populations, while a few large outliers\n""hold extremely high inmate populations that right-skew the distribution.",ha='center', va='bottom',fontsize=10,transform=plt.gca().transAxes)
+plt.figtext(0.01, 0.01, "SOURCE: BJS 2023", ha="left", fontsize=9)
+plt.xlabel("Average Incarcerated Population")
 plt.ylabel("Count")
 plt.savefig("hist_avg_jail_pop.png", dpi=300, bbox_inches='tight')
 plt.show()
 
-#scatter MH vs avg jail pop
+#dist of mh facilities 
+plt.figure(figsize=(8,5))
+sns.histplot(final_data['MH'], bins=15, kde=True, color='skyblue')
+plt.title("Distribution of Mental Health Facilities", fontsize=12, weight='bold', pad=30)
+plt.text(0.5, 1.02,
+"Most states have a moderate number of mental health facilities,\n"
+"but a few states with high counts create a right-skewed distribution.",
+ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
+plt.figtext(0.01, 0.01, "SOURCE: SAMHSA 2022-2023", ha="left", fontsize=9)
+plt.xlabel("Number of Mental Health Facilities (MH)")
+plt.ylabel("Count")
+plt.savefig("hist_MH.png", dpi=300, bbox_inches='tight')
+plt.show()
+
+
+#dist of sa facilities 
+plt.figure(figsize=(8,5))
+sns.histplot(final_data['SA'], bins=15, kde=True, color='salmon')
+plt.title("Distribution of Substance Abuse Facilities", fontsize=12, weight='bold', pad=30)
+plt.text(0.5, 1.02,
+"Most states have relatively few substance abuse facilities,\n"
+"while a small number of states have many creating a significant right-skew.",
+ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
+plt.figtext(0.01, 0.01, "SOURCE: SAMHSA 2022-2023", ha="left", fontsize=9)
+plt.xlabel("Number of Substance Abuse Facilities (SA)")
+plt.ylabel("Count")
+plt.savefig("hist_SA.png", dpi=300, bbox_inches='tight')
+plt.show()
+
+
+#scatter MH vs avg carc pop
 plt.figure(figsize=(8,5))
 sns.scatterplot(data=final_data, x='MH', y='avg_jail_pop', hue='year', palette='tab10')
-plt.title("Mental Health Facilities vs Average Jail Population")
+plt.title("Mental Health Facilities vs Average Carceral Population", fontsize=12, weight='bold', pad=30)
+plt.text(0.5, 1.02,"There is a positive association between mental health\n""facilities and average incarceration popultation.", ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
+plt.figtext(0.01, 0.01, "SOURCE: BJS & SAMHSA 2022,2023", ha="left", fontsize=9)
 plt.xlabel("Number of Mental Health Facilities (MH)")
 plt.ylabel("Average Jail Population")
-plt.legend(title="Year")
+plt.legend(title="Year", bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.savefig("scatter_MH_vs_jail.png", dpi=300, bbox_inches='tight')
 plt.show()
 
-#scatter SA vs avg jail pop
+#scatter SA vs avg carc pop
 plt.figure(figsize=(8,5))
 sns.scatterplot(data=final_data, x='SA', y='avg_jail_pop', hue='year', palette='tab10')
-plt.title("Substance Abuse Facilities vs Average Jail Population")
+plt.title("Substance Abuse Facilities vs Average Carceral Population", fontsize=12, weight='bold', pad=30)
+plt.text(0.5, 1.02,"There is a positive association between substance abuse\n""facilities and average incarceration popultation.",ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
+plt.figtext(0.01, 0.01, "SOURCE: BJS & SAMHSA 2022,2023", ha="left", fontsize=9)
 plt.xlabel("Number of Substance Abuse Facilities (SA)")
 plt.ylabel("Average Jail Population")
-plt.legend(title="Year")
+plt.legend(title="Year", bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.savefig("scatter_SA_vs_jail.png", dpi=300, bbox_inches='tight')
 plt.show()
 
