@@ -254,7 +254,7 @@ plt.show()
 
 #dist of sa facilities 
 plt.figure(figsize=(8,5))
-sns.histplot(final_data['SA'], bins=15, kde=True, color='salmon')
+sns.histplot(final_data['SA'], bins=15, kde=True, color='paleturquoise')
 plt.title("Distribution of Substance Abuse Facilities", fontsize=12, weight='bold', pad=30)
 plt.text(0.5, 1.02,
 "Most states have relatively few substance abuse facilities,\n"
@@ -271,11 +271,11 @@ plt.show()
 plt.figure(figsize=(8,5))
 sns.scatterplot(data=final_data, x='MH', y='avg_jail_pop', hue='year', palette='tab10')
 plt.title("Mental Health Facilities vs Average Carceral Population", fontsize=12, weight='bold', pad=30)
-plt.text(0.5, 1.02,"There is a positive association between mental health\n""facilities and average incarceration popultation.", ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
+plt.text(0.5, 1.02,"There is a positive association between mental health\nfacilities and average incarceration population.", ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
 plt.figtext(0.01, 0.01, "SOURCE: BJS & SAMHSA 2022,2023", ha="left", fontsize=9)
 plt.xlabel("Number of Mental Health Facilities (MH)")
 plt.ylabel("Average Jail Population")
-plt.legend(title="Year", bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.legend(title="Year", loc='upper right')
 plt.savefig("scatter_MH_vs_jail.png", dpi=300, bbox_inches='tight')
 plt.show()
 
@@ -287,7 +287,7 @@ plt.text(0.5, 1.02,"There is a positive association between substance abuse\n""f
 plt.figtext(0.01, 0.01, "SOURCE: BJS & SAMHSA 2022,2023", ha="left", fontsize=9)
 plt.xlabel("Number of Substance Abuse Facilities (SA)")
 plt.ylabel("Average Jail Population")
-plt.legend(title="Year", bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.legend(title="Year", loc='upper right')
 plt.savefig("scatter_SA_vs_jail.png", dpi=300, bbox_inches='tight')
 plt.show()
 
@@ -319,8 +319,13 @@ plt.show()
 
 #modelling 
 
+#create interaction terms
+final_data['MHxSA'] = final_data['MH'] * final_data['SA']
+final_data['MHxpct_black'] = final_data['MH'] * final_data['pct_black']
+final_data['MHxfemale_pop'] = final_data['MH'] * final_data['female_pop']
+
 #predictors for VIF check
-predictors = ['MH', 'SA', 'pct_white', 'pct_black', 'pct_aian','pct_asian', 'pct_nhpi', 'pct_hispanic','female_pop']
+predictors = ['MH', 'SA', 'pct_white', 'pct_black', 'pct_aian','pct_asian', 'pct_nhpi', 'pct_hispanic','female_pop', 'MHxSA', 'MHxpct_black', 'MHxfemale_pop']
 
 #drop missing
 X = final_data[predictors].dropna()
@@ -331,6 +336,19 @@ X_const = sm.add_constant(X)
 #compute VIFs
 vif_data = pd.DataFrame({"variable": X_const.columns, "VIF": [variance_inflation_factor(X_const.values, i) for i in range(X_const.shape[1])]})
 print(vif_data)
+
+#predictors for 2nd VIF check
+predictors_2 = ['MH', 'SA', 'pct_black', 'pct_aian','pct_asian', 'pct_nhpi', 'pct_hispanic','female_pop', 'MHxSA']
+
+#drop missing
+X_2 = final_data[predictors_2].dropna()
+
+#add constant
+X_const_2 = sm.add_constant(X_2)
+
+#compute VIFs
+vif_data_2 = pd.DataFrame({"variable": X_const_2.columns, "VIF": [variance_inflation_factor(X_const_2.values, i) for i in range(X_const_2.shape[1])]})
+print(vif_data_2)
 
 #panelOLS requires multi-index
 final_data = final_data.set_index(['state_abbrev','year'])
@@ -396,7 +414,7 @@ def demean_panel(X, y, entity=None, time=None):
 #get CV-RMSE function
 def cv_rmse_panel(X, y, entity=None, time=None, n_splits=5):
     X_d, y_d = demean_panel(X, y, entity, time)
-    kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=45)
     rmses = []
     for train_idx, test_idx in kf.split(X_d):
         model = LinearRegression().fit(X_d.iloc[train_idx], y_d.iloc[train_idx])
@@ -467,99 +485,39 @@ for X, entity, time, name, cv, panel_model in zip(
 metrics_df = pd.DataFrame(metrics)
 print(metrics_df)
 
-
-#coefficients for presentation
-def extract_coefs(model, model_name):
-    df = pd.DataFrame({
-        'Variable': model.params.index,
-        'Coefficient': model.params.values,
-        'Std. Error': model.std_errors.values,
-        'T-stat': model.tstats.values,
-        'P-value': model.pvalues.values})
-    df['Significance'] = df['P-value'].apply(lambda p: '***' if p<0.01 else '**' if p<0.05 else '*' if p<0.1 else '')
-    df['Model'] = model_name
-    return df
-
-#combine coefficients into one table for readability
-coef_all = pd.concat([
-    extract_coefs(mod1, "Model 1: MH + SA Counts Only"),
-    extract_coefs(mod2, "Model 2: State FE + MH + SA Counts"),
-    extract_coefs(mod3, "Model 3: State FE + Counts + Demographics + Interactions")],
-    ignore_index=True)
-
-print(coef_all)
-
 ##predict 2024 using model 3 data 
-#remove index in order to run this prediction
-df_2024 = final_data.reset_index()
-df_2024 = df_2024[df_2024['year'] == 2023].copy()
-df_2024['year'] = 2024
-
-#restore multi-index
-df_2024.set_index(['state_abbrev','year'], inplace=True)
-
-#create interaction term
-df_2024['MHxSA'] = df_2024['MH'] * df_2024['SA']
-
-#pick vars
-X_pred = df_2024[['MH','SA','MHxSA','pct_black','pct_aian','pct_asian','pct_nhpi','pct_hispanic','female_pop']]
-
-#use model 3 coefs for prediction
-coefs = mod3.params
-df_2024['pred_avg_jail_pop'] = (
-    X_pred['MH']*coefs.get('MH',0) +
-    X_pred['SA']*coefs.get('SA',0) +
-    X_pred['MHxSA']*coefs.get('MHxSA',0) +
-    X_pred['pct_black']*coefs.get('pct_black',0) +
-    X_pred['pct_aian']*coefs.get('pct_aian',0) +
-    X_pred['pct_asian']*coefs.get('pct_asian',0) +
-    X_pred['pct_nhpi']*coefs.get('pct_nhpi',0) +
-    X_pred['pct_hispanic']*coefs.get('pct_hispanic',0) +
-    X_pred['female_pop']*coefs.get('female_pop',0))
-
-print(df_2024[['pred_avg_jail_pop']])
-
-#teswt/ train
+#build training dataset 
 panel_df = final_data.reset_index().copy()
-
-#create interaction term
 panel_df['MHxSA'] = panel_df['MH'] * panel_df['SA']
 
-#define features and target for model 3
-X_vars = ['MH','SA','MHxSA','pct_black','pct_aian','pct_asian','pct_nhpi','pct_hispanic','female_pop']
-y_var = 'avg_jail_pop'
-
-#75/25 train-test split
-train_idx, test_idx = train_test_split(panel_df.index, test_size=0.25, random_state=42)
+#test train split 
+train_idx, test_idx = train_test_split(panel_df.index, test_size=0.3, random_state=45)
 train_panel = panel_df.loc[train_idx].set_index(['state_abbrev','year'])
 test_panel = panel_df.loc[test_idx].set_index(['state_abbrev','year'])
 
-#define  features and target
-y_train = train_panel[y_var]
+#define predictors and targets
 X_train = train_panel[X_vars]
-y_test = test_panel[y_var]
+y_train = train_panel[y_var]
 X_test = test_panel[X_vars]
+y_test = test_panel[y_var]
 
-#now train
+#train 
+model_train_FE = PanelOLS(y_train, X_train, entity_effects=True).fit(cov_type='clustered', cluster_entity=True)
 
-model_train_FE = PanelOLS(y_train, X_train, entity_effects=True).fit(
-    cov_type='clustered', cluster_entity=True)
-print(model_train_FE.summary)
-
-#now predict
+#test model 
 y_pred_test = model_train_FE.predict(X_test)
-
-#how did we do?
 rmse_test = np.sqrt(mean_squared_error(y_test, y_pred_test))
 r2_test = r2_score(y_test, y_pred_test)
-print(f"Test Set RMSE: {rmse_test:.2f}")
-print(f"Test Set R²: {r2_test:.3f}")
 
-#save it
-test_results_FE = X_test.copy()
-test_results_FE['actual_jail_pop'] = y_test
-test_results_FE['predicted_jail_pop'] = y_pred_test
-test_results_FE.to_csv("train_test_predictions_state_FE.csv")
+#predict 2024
+df_2024 = final_data.reset_index()
+df_2024 = df_2024[df_2024['year'] == 2023].copy()
+df_2024['year'] = 2024
+df_2024.set_index(['state_abbrev','year'], inplace=True)
+df_2024['MHxSA'] = df_2024['MH'] * df_2024['SA']
+coefs = model_train_FE.params
+df_2024['pred_avg_jail_pop'] = (...)
+
 
 
 
