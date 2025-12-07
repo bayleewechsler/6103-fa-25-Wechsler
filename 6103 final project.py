@@ -12,6 +12,7 @@ from linearmodels.panel import PanelOLS
 import seaborn as sns
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
 import requests
 
 #set working directory
@@ -290,6 +291,23 @@ plt.legend(title="Year", bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.savefig("scatter_SA_vs_jail.png", dpi=300, bbox_inches='tight')
 plt.show()
 
+#correlation heatmap
+#corr vars
+vars_corr = ['avg_jail_pop', 'MH', 'SA', 'pct_white', 'pct_black', 'pct_aian', 
+                   'pct_asian', 'pct_nhpi', 'pct_hispanic', 'female_pop']
+
+#make corr matrix
+corr_matrix = final_data[vars_corr].corr()
+
+#plot corr matrix
+plt.figure(figsize=(10,8))
+sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap='coolwarm', cbar_kws={'label': 'Correlation'})
+plt.title("Correlation Heatmap of Main Predictors", fontsize=12, weight='bold', pad=30)
+plt.xticks(rotation=45, ha='right')
+plt.yticks(rotation=0)
+plt.tight_layout()
+plt.savefig("correlation_heatmap_predictors.png", dpi=300, bbox_inches='tight')
+plt.show()
 
 
 
@@ -410,32 +428,45 @@ rmse2 = cv_rmse_panel(X1, y, entity='state_abbrev')
 rmse3 = cv_rmse_panel(X3, y, entity='state_abbrev')      
 
 #model metrics
+panel_models = [mod1, mod2, mod3]
+X_list = [X1, X1, X3]
+entity_list = [None, 'state_abbrev', 'state_abbrev']
+time_list = [None, None, None]
+model_names = [
+    "Model 1: Facility counts only",
+    "Model 2: State FE + Facility counts",
+    "Model 3: State FE + Counts + Demographics + Interactions"]
+cv_list = [rmse1, rmse2, rmse3]
+
 metrics = []
 
-for X, entity, time, name, cv in zip(
-    [X1, X1, X3],
-    [None, 'state_abbrev', 'state_abbrev'],
-    [None, None, None],
-    ["Model 1: Facility counts only", 
-     "Model 2: State FE + Facility counts", 
-     "Model 3: State FE + Facility counts + Demographics + Interactions"],
-    [rmse1, rmse2, rmse3]):
+for X, entity, time, name, cv, panel_model in zip(
+    X_list, entity_list, time_list, model_names, cv_list, panel_models):
     X_d, y_d = demean_panel(X, y, entity, time)
-    model = LinearRegression().fit(X_d, y_d)
-    residuals = y_d - model.predict(X_d)
+    lin_model = LinearRegression().fit(X_d, y_d)
+    residuals = y_d - lin_model.predict(X_d)
     num_params = X_d.shape[1]
     aic, bic = compute_aic_bic(residuals, num_params)
     r2_within = 1 - np.sum(residuals**2)/np.sum((y_d - np.mean(y_d))**2)
+    if panel_model.f_statistic is not None:
+        f_stat = panel_model.f_statistic.stat
+        f_pval = panel_model.f_statistic.pval
+    else:
+        f_stat = np.nan
+        f_pval = np.nan
     metrics.append({
         "Model": name,
         "Fixed Effects": "None" if entity is None else "State",
         "CV_RMSE": cv,
         "R2_Within": r2_within,
         "AIC": aic,
-        "BIC": bic})
+        "BIC": bic,
+        "F-stat": f_stat,
+        "F P-value": f_pval})
 
 metrics_df = pd.DataFrame(metrics)
 print(metrics_df)
+
 
 #coefficients for presentation
 def extract_coefs(model, model_name):
