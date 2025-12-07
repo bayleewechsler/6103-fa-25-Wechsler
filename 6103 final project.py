@@ -509,14 +509,19 @@ y_pred_test = model_train_FE.predict(X_test)
 rmse_test = np.sqrt(mean_squared_error(y_test, y_pred_test))
 r2_test = r2_score(y_test, y_pred_test)
 
+#how did we do?
+print(rmse_test)
+print(r2_test)
+
 #predict 2024
 df_2024 = final_data.reset_index()
 df_2024 = df_2024[df_2024['year'] == 2023].copy()
 df_2024['year'] = 2024
 df_2024.set_index(['state_abbrev','year'], inplace=True)
 df_2024['MHxSA'] = df_2024['MH'] * df_2024['SA']
-coefs = model_train_FE.params
-df_2024['pred_avg_jail_pop'] = (...)
+predictors = X_train.columns
+df_2024['pred_avg_jail_pop'] = model_train_FE.predict(df_2024[predictors])
+print(df_2024[['pred_avg_jail_pop']].head())
 
 
 

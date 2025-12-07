@@ -7,41 +7,51 @@ format:
 editor: visual
 ---
 
-## Introduction
+# Introduction
 
-This project seeks to determine the potential dampening effect of alternative treatment programs on incarceration levels across U.S. states. The United States has a significantly higher incarceration rate than any other country in the world, yet issues of violent crime persist across American cities, suburbs, and rural communities. Prisons are theoretically intended to rehabilitate individuals to be better members of the community upon re-entry, but recidivism rates remain high across U.S. states. This indicates that people are going to jail who would be better served in some other sort of program, prisons fundamentally fail at their rehabilitative goal, or some combination of both.
+This project seeks to determine the potential dampening effect of alternative treatment programs on incarceration levels across U.S. states. The United States has a significantly higher incarceration rate than any other country in the world, yet issues of violent crime persist across American cities, suburbs, and rural communities. Prisons are theoretically intended to rehabilitate individuals to be better members of the community upon re-entry, but recidivism rates remain high across U.S. states. This indicates that either people are going to prison and jail who would be better served in some other sort of program, prisons fundamentally fail at their rehabilitative goal, or some combination of both.
 
-I believe that alternative treatment programs could help divert individuals out of the carceral system and lead to improved recidivism outcomes for individuals and decreased financial burdens for state governments. With this project, I hope to provide stronger statistical support and predictive ability to help convince lawmakers that alternative treatment courts are a strategic economic investment in addition to a morally sound choice. Being able to show a strong regression analysis and a strong predictive model that can be used to outline the decreased incarceration count associated with increased investment in incarceration alternatives would be a compelling argument for decarceral policy. 
+I believe that alternative treatment programs could help divert individuals out of the carceral system and lead to improved recidivism outcomes for individuals and decreased financial burdens for state governments. With this project, I hope to provide stronger statistical support and predictive ability to help convince lawmakers that alternative treatment courts are a strategic economic investment in addition to a morally sound choice. Being able to show a strong regression analysis and a strong predictive model that can be used to outline the decreased incarceration count associated with increased investment in incarceration alternatives would be a compelling argument for decarceral policy.
 
-## Data &  Methodology
+## Data & Methodology
 
-There are a wide variety of jail and prison-related datasets, but most lack robustness or are protected by privacy protection laws that prevent individual-level analysis. I chose to use data from the Bureau of Justice Statistics because their data is reliable and thorough. Unfortunately, I could not find downloadable data, but they did list the state level prison and jail counts with gender demographic breakdowns on annually posted pdfs with data tables. Therefore, I pulled the 2022 and 2023 data from Table 2 on page 8 of the 2023 Bureau of Justice Statistics report {https://bjs.ojp.gov/document/p23st.pdf}. 
+There are a wide variety of jail and prison-related datasets, but most lack robustness or are protected by privacy protection laws that prevent individual-level analysis. I chose to use data from the Bureau of Justice Statistics because their data is reliable and thorough. Unfortunately, I could not find downloadable data, but they did list the state level prison and jail counts with gender demographic breakdowns on annually posted pdfs with data tables. Therefore, I pulled the 2022 and 2023 data from Table 2 on page 8 of the 2023 Bureau of Justice Statistics report {https://bjs.ojp.gov/document/p23st.pdf}.
 
-For the alternative treatment courts, I chose to aggregate data from the Substance Abuse and Mental Health Services Association (SAMHSA). This is an agency within the Department of Health and Human Services that works to advance behavioral health across the United States. This agency allows me to count the number of mental health and substance abuse facilities within each U.S. state. This prepares the project well for regressive and predictive analysis. 
+For the alternative treatment courts, I chose to aggregate data from the Substance Abuse and Mental Health Services Association (SAMHSA) {https://www.samhsa.gov/}. This is an agency within the Department of Health and Human Services that works to advance behavioral health across the United States. This agency allows me to count the number of mental health and substance abuse facilities within each U.S. state. This prepares the project well for regressive and predictive analysis.
 
-However, this would still be an incomplete analysis without taking into account other fixed effects and exogenous factors. To fix this, I also read in race-percentages from the 2022 and 2023 one-year American Community Survey. This data should help improve the accuracy of the models' regressive and predictive power. The specific variables included in this project are as follows: 
+However, this would still be an incomplete analysis without taking into account other fixed effects and exogenous factors. To fix this, I also read in race-percentages from the 2022 and 2023 one-year American Community Survey {https://www.census.gov/programs-surveys/acs/data.html}. This data should help improve the accuracy of the models' regressive and predictive power. The specific variables included in this project are as follows:
 
-Original Variable Name | New Variable Name | Definition  
-  :-: |  :-: | :-- 
-avg_jail_pop | avg_jail_pop | Average daily prison and jail population for the county during the year.
-## go back and rename graphs to fix this- not clear 
-male_pop | male_pop | Total incarcerated male population in the county for the corresponding year.
-female_pop | female_pop | Total incarcerated female population in the county for the corresponding year.
-Name1 | MH | Name of all mental health facilities in the dataset in a year.
-name1 | SA | Name of all substance abuse facilities in the dataset in a year.
-state | state_fips_string | List of all 50 U.S. state names, as a character string. 
-state | state_fips | List of all 50 U.S. state fips codes. 
-state | state_name | List of all 50 U.S. state names spelled out fully. 
-## double check these state descriptions are assigned correctly
-DP05_0033PE | pct_white | Percent of population that identifies as White alone (ACS 1-year).
-DP05_0037PE | pct_black | Percent of population that identifies as Black or African American alone (ACS 1-year).
-DP05_0038PE | pct_aian | Percent of  population that identifies as American Indian or Alaska Native alone (ACS 1-year).
-DP05_0039PE | pct_asian | Percent of population that identifies as Asian alone (ACS 1-year).
-DP05_0044PE | pct_nhpi | Percent of population that identifies as Native Hawaiian or Other Pacific Islander alone (ACS 1-year).
-DP05_0052PE | pct_hispanic | Percent of population that identifies as Hispanic or Latino of any race (ACS 5-year).
-MHxSA | MHxSA | Interaction term equal to MH × SA, capturing the combined effect of mental health services and substance abuse treatment availability.
+**Original Variable Name \| New Variable Name \| Definition**
 
-#describe cleaning, processing, and manipulating data as I go through the code chunks
+-   avg_jail_pop \| avg_jail_pop \| Average daily prison and jail population for the county during the year.
+
+-   male_pop \| male_pop \| Total incarcerated male population in the county for the corresponding year.
+
+-   female_pop \| female_pop \| Total incarcerated female population in the county for the corresponding year.
+
+-   Name1 \| MH \| Name of all mental health facilities in the dataset in a year.
+
+-   name1 \| SA \| Name of all substance abuse facilities in the dataset in a year.
+
+-   state \| state_fips_string \| List of all 50 U.S. state names, as a character string.
+
+-   state \| state_fips \| List of all 50 U.S. state fips codes.
+
+-   state \| state_name \| List of all 50 U.S. state names spelled out fully.
+
+-   DP05_0033PE \| pct_white \| Percent of population that identifies as White alone (ACS 1-year).
+
+-   DP05_0037PE \| pct_black \| Percent of population that identifies as Black or African American alone (ACS 1-year).
+
+-   DP05_0038PE \| pct_aian \| Percent of population that identifies as American Indian or Alaska Native alone (ACS 1-year).
+
+-   DP05_0039PE \| pct_asian \| Percent of population that identifies as Asian alone (ACS 1-year).
+
+-   DP05_0044PE \| pct_nhpi \| Percent of population that identifies as Native Hawaiian or Other Pacific Islander alone (ACS 1-year).
+
+-   DP05_0052PE \| pct_hispanic \| Percent of population that identifies as Hispanic or Latino of any race (ACS 5-year).
+
+-   MHxSA \| MHxSA \| Interaction term equal to MH × SA, capturing the combined effect of mental health services and substance abuse treatment availability.
 
 ```{python load bjs data}
 import pandas as pd
@@ -111,8 +121,25 @@ bjs_combined = pd.concat([df_2022, df_2023], ignore_index=True)
 
 ```
 
+The first step in the analysis involved assembling a clean, machine-readable version of the prison and jail population data reported annually by the Bureau of Justice Statistics (BJS). Because BJS publishes these figures only in PDF table format, the data are not available for direct download or API access. As a result, I manually transcribed the 2022 and 2023 state-level incarceration counts from Table 2 (page 8) of the BJS Prisoners in 2023 report.
 
+This code block imports the core scientific Python libraries used throughout the project—including pandas for data manipulation, numpy for numeric operations, matplotlib and seaborn for visualization, statsmodels and linearmodels for regression, and scikit-learn for predictive modeling. Establishing these imports early ensures that subsequent steps for cleaning, modeling, and evaluation all run smoothly and consistently.
 
+After setting the working directory, the manually collected BJS figures are stored as Python lists for both 2022 and 2023. Each row contains a state’s two-letter postal abbreviation along with three incarceration measures:
+
+1.  avg_jail_pop: the average daily total confined population
+
+2.  male_pop: total incarcerated males
+
+3.  female_pop: total incarcerated females
+
+These variables give a clearer breakdown of demographic differences and allow for constructing ratios or gender-specific effects in later analysis.
+
+The data are then converted into pandas DataFrames and tagged with the appropriate year. Adding a Year column enables the combined dataset to function as a two-year panel structure, laying the groundwork for fixed effects modeling and other time-aware approaches used later in the project.
+
+Finally, the 2022 and 2023 DataFrames are concatenated into a single unified object named bjs_combined. This consolidated dataset forms one of the core components of the analysis. Alongside the SAMHSA treatment-facility counts and ACS demographic variables added later, it provides the outcome variables necessary for both regression and prediction—specifically, each state’s incarceration levels and gender composition across two consecutive years.
+
+This careful reconstruction and cleaning of the BJS figures ensure that the foundational dataset is accurate, well-structured, and ready to be merged with the external explanatory variables used in the later modeling steps.
 
 ```{python load samhsa data}
 
@@ -171,6 +198,35 @@ print(samhsa_counts.head())
 
 ```
 
+To complement the incarceration data from BJS, this section focuses on constructing a clean dataset describing the availability of mental health and substance abuse treatment facilities across U.S. states. These variables serve as the core explanatory features for evaluating whether expanded access to behavioral health infrastructure is associated with lower incarceration levels.
+
+The raw SAMHSA facility lists for 2022 and 2023 are provided as large Excel files containing thousands of facility-level records. Each entry corresponds to a single treatment provider and includes various attributes such as address, type of services, and licensing information. Because these files can sometimes load inconsistently—often due to formatting issues, missing metadata, or differences in encoding—the first step was to build a small helper function (read_xlsx_safe) that attempts to read each file using openpyxl and returns an empty DataFrame if anything goes wrong. This ensures that the workflow proceeds gracefully even if a file is temporarily corrupt or unreadable.
+
+Once the files are safely imported, the next task is to convert these raw lists of facilities into state-level counts that can be merged with the BJS dataset. The custom function count_facilities() cleans each dataset by:
+
+1.  Identifying the state column even when SAMHSA uses inconsistent capitalization (e.g., "State", "state", "STATE").
+
+2.  Standardizing state abbreviations to uppercase, ensuring uniform merge keys.
+
+3.  Assigning the correct year to each facility.
+
+4.  Aggregating facilities by state, producing a simple count of mental health (MH) or substance abuse (SA) providers per state-year.
+
+This transformation is essential because the analysis is conducted at the state level. Converting thousands of facility-level entries into consistent summary counts allows the SAMHSA dataset to structurally align with the BJS incarceration data prepared earlier.
+
+Separate counts are generated for 2022 and 2023 for both MH and SA facilities, and the results are consolidated into two intermediate tables (mh_counts and sa_counts). These tables are then merged into a single unified SAMHSA dataset, samhsa_counts, containing:
+
+1.  MH_count: Number of mental health treatment facilities in each state
+
+2.  SA_count: Number of substance abuse treatment facilities in each state
+
+3.  Year: To align with the two-year BJS panel
+
+Any missing values are filled with zeros, which is appropriate since an empty state-year category simply indicates that no facilities were listed for that state in the corresponding dataset.
+
+The resulting dataframe offers a clean and intuitive structure for later regression analysis. By quantifying behavioral health treatment capacity across states, this dataset allows the project to test the core hypothesis: states with greater access to mental health and substance abuse resources may exhibit lower incarceration levels or slower growth in incarcerated populations.
+
+This SAMHSA table becomes one of the principal independent variables in the regression and predictive modeling tasks that follow.
 
 ```{python merge bjs samhsa}
 #merge BJS and SAMHSA data
@@ -187,6 +243,22 @@ bjs_samhsa.isna().sum()
 #peek at merged data
 print(bjs_samhsa.head())
 ```
+
+After preparing the incarceration dataset from BJS and the treatment facility dataset from SAMHSA, the next step is to integrate these two sources into a single, analysis-ready panel. This merged dataset forms the structural backbone of the project because it places incarceration levels and behavioral health treatment capacity side by side for every U.S. state across the two-year period. The merge operation aligns the datasets by two keys: state_abbrev and Year.
+
+This ensures that each state-year observation contains the appropriate incarceration statistics as well as the corresponding counts of mental health (MH) and substance abuse (SA) facilities. Because SAMHSA may not list facilities for every state in every year, the merge is performed as a left join, which preserves all BJS state-year observations and attaches treatment facility counts wherever available.
+
+To maintain analytical integrity, the merged dataset standardizes the facility count column names to MH and SA, and missing values are replaced with zeros. This step is important because an absence of SAMHSA-listed facilities does not necessarily indicate missing data; it often simply means that no facilities meeting SAMHSA’s criteria were recorded for that state-year. Converting these entries to zero is therefore both statistically appropriate and necessary for proper regression modeling later.
+
+Before proceeding, the code performs two basic quality checks:
+
+1.  Duplicate check: Ensuring that each state-year appears exactly once, which confirms that no unintended row multiplication occurred during merging.
+
+2.  Missingness scan: Verifying that all relevant fields are present and that no accidental gaps were introduced during the integration.
+
+Inspecting the head of the merged dataset confirms that each state-year now includes average prison and jail population and gender breakdowns (from BJS), counts of mental health and substance abuse treatment facilities (from SAMHSA), and a clean and consistent panel structure.
+
+This merged table is now ready for enrichment with demographic controls from the ACS and for use in both regression and predictive modeling. By combining incarceration data with treatment infrastructure variables, the dataset now captures the structural factors needed to explore whether states with greater behavioral health resources demonstrate lower or slower-growing incarceration levels.
 
 ```{python load acs data}
 
@@ -256,6 +328,17 @@ print(acs_state_race_clean.head())
 
 ```
 
+In this section of the analysis, I focused on integrating state-level demographic data from the American Community Survey (ACS) to enrich the merged BJS–SAMHSA dataset with racial and ethnic composition indicators. These variables provide essential contextual information about each state and help support later models that explore how demographic characteristics correlate with variation in incarceration patterns and behavioral health counts.
+
+The first step involved creating a reference table (state_ref) that links each state’s two-digit FIPS code to its full name and postal abbreviation. This step is crucial because the Census API returns data keyed by FIPS codes, while my merged BJS–SAMHSA dataset primarily uses state abbreviations. Aligning these identifiers early prevents merge errors and ensures consistency across datasets.
+
+Next, I defined a dictionary of ACS race variables, mapping the census variable codes to more interpretable column names such as pct_white, pct_black, pct_asian, and pct_hispanic. I then created a short helper function, load_acs_state_race(), which queries the Census API for a given year, retrieves the racial composition indicators for all 50 states plus DC, and cleans the output into a tidy pandas dataframe. Within the function, I standardized column names, converted all race variables to numeric formats, and ensured that all FIPS codes were padded correctly.
+
+I then called this function to retrieve ACS data for both 2022 and 2023. These two years represent the most recent publicly available ACS 1-year estimates, and including both was necessary because my BJS–SAMHSA dataset spans multiple years. After concatenating the two ACS datasets vertically, I merged them with the state_ref table to attach state abbreviations and harmonize identifiers across sources.
+
+Finally, I selected only the variables needed for later analysis, including the year, the two FIPS formats, the state name, the postal abbreviation, and the six race/ethnicity percentages. Printing the head of the cleaned dataset confirmed that the merge worked correctly and that the structure of the combined file aligned with what I would need for the larger project dataset.
+
+Overall, this code chunk establishes the demographic foundation for the subsequent modeling steps. By ensuring that the ACS race variables are accurately retrieved, standardized, and merged, I created a reliable demographic layer that will help contextualize incarceration trends and allow for more nuanced analyses in the later regression models.
 
 ```{python final data merge}
 #prep BJS/SAMHSA for final merge
@@ -269,7 +352,17 @@ print(final_data.isna().sum())
 print(final_data.head())
 ```
 
-Summary statistics here
+This code block brings together all previously prepared datasets into a single, analytically ready file. At this stage, the BJS incarceration data and SAMHSA behavioral health counts had already been merged and cleaned; the ACS demographic dataset had likewise been standardized and aligned to a common structure. The goal here was to integrate these components so every observation contains state-level corrections information, behavioral health service capacity indicators, and demographic context.
+
+The first step involved a small but important renaming task. In the BJS–SAMHSA dataset, the time variable was labeled Year, whereas the ACS dataset used the lowercase year. To prevent merge mismatches and ensure consistent key fields across datasets, I standardized the BJS–SAMHSA variable with bjs_samhsa_clean = bjs_samhsa.rename(columns={'Year': 'year'}). This type of harmonization step is essential when stitching together multiple sources that were not originally designed to interoperate.
+
+With naming conventions aligned, I performed the main dataset merge using a left join on \['state_abbrev','year'\]. This structure ensures that every state-year present in the BJS/SAMHSA file is retained, even if ACS is missing a corresponding demographic observation. The ACS data fills in the racial and ethnic composition variables, effectively enriching each state-year row with contextual information that can help explain variation in jail populations, mental health counts, or substance use trends.
+
+To verify merge accuracy, I then examined the number of missing values with final_data.isna().sum(). This check serves two purposes: first, it confirms whether the join operation successfully matched most records, and second, it helps identify whether any states or years lacked ACS data entirely. In this case, most missing values likely relate to fields that SAMHSA did not report for certain states or years; however, the absence of missingness in the key demographic variables would suggest a successful integration with ACS.
+
+Finally, printing the first few rows of the final_data object provides a qualitative validation: column names appear as expected, identifiers are correctly aligned, and demographic variables appear properly attached to their corresponding state-year records. This preview step is especially helpful for confirming that no unexpected duplication, reshaping, or misalignment occurred during the merge.
+
+Overall, this code block completes the construction of the master dataset that serves as the backbone for the subsequent exploratory analysis and regression modeling. By consolidating multiple administrative sources into a unified table, I created a structured dataset that allows for richer, multivariate insights into how demographic patterns and behavioral health service availability relate to incarceration outcomes.
 
 ```{python summary stats}
 #save summary stats
@@ -279,61 +372,162 @@ summary_table.to_excel(os.path.join(data_dir, "final_data_summary_stats.xlsx"), 
 print(summary_table)
 ```
 
+This section generates a clean, presentation-ready summary of the numeric variables in the final merged dataset. After integrating all three major data sources—BJS incarceration measures, SAMHSA behavioral health facility counts, and ACS demographic indicators—it becomes important to step back and examine the overall distribution of each variable. This helps verify data quality, identify potential outliers, and understand the scale and variability of key measures before moving into more formal modeling.
+
+To accomplish this, I first created a list of all numeric columns in the dataset using select_dtypes(include=np.number). This ensures that only variables with meaningful numerical values (such as population counts, percentages, or year indicators) are included in the summary table, while identifiers and string variables are intentionally excluded.
+
+I computed standard descriptive statistics for each variable: counts, means, standard deviations, minimums, quartiles, and maximums. Transposing the output makes each variable its own row—far easier to read and compare visually. Rounding these values to two decimal places improves interpretability without sacrificing too much detail. The final table is then saved as an excel file so that it can be easily inserted into slides or referenced outside the Python environment.
+
+The printed output gives an overview of the resulting summary. For example, jail populations vary widely across states, which is expected given differences in population size and correctional system scope. Behavioral health facility counts (MH and SA) also show substantial variation, indicating that access to treatment infrastructure is unevenly distributed. The demographic variables confirm wide diversity across states.
+
+Overall, this step functions as both a diagnostic check and an early analytical snapshot of the dataset. It allows me to verify that the merge operations produced reasonable numeric values and provides a grounded sense of the range and distribution of each variable that will factor into later regression analysis.
+
 ## Exploratory Data Analysis
+
+The first step in understanding the relationship between incarceration rates and alternative treatment programs is to examine the distribution of the average incarcerated population across U.S. states.
 
 ```{python EDA 1}
 #histm of avg jail population
 plt.figure(figsize=(8,5))
 sns.histplot(final_data['avg_jail_pop'], bins=15, kde=True)
-plt.title("Distribution of Average Jail Population")
-plt.xlabel("Average Jail Population")
+plt.title("Distribution of Average Incarcerated Population", fontsize=12, weight='bold', pad=30)
+plt.text(0.5, 1.02,"Most incarceration facilities house small populations, while a few large outliers\n""hold extremely high inmate populations that right-skew the distribution.",ha='center', va='bottom',fontsize=10,transform=plt.gca().transAxes)
+plt.figtext(0.01, 0.01, "SOURCE: BJS 2023", ha="left", fontsize=9)
+plt.xlabel("Average Incarcerated Population")
 plt.ylabel("Count")
 plt.savefig("hist_avg_jail_pop.png", dpi=300, bbox_inches='tight')
 plt.show()
 ```
 
+As shown in Figure 1, most states maintain relatively modest prison and jail populations, while a small number of states have extremely large populations, resulting in a pronounced right-skew in the data. This pattern suggests that while a majority of states operate facilities housing fewer than 30,000 individuals on average, a few outliers drive the upper end of the distribution.
 
+The skewed distribution highlights the importance of considering both median and mean values when describing state-level incarceration, as the mean is heavily influenced by these high-population outliers. From a policy perspective, these outliers may represent states where alternative treatment programs could have the greatest absolute impact, though relative effects may vary.
 
+Following the overview of incarceration levels, it is essential to explore the distribution of alternative treatment programs, specifically mental health (MH) and substance abuse (SA) facilities. By examining these distributions, we can begin to identify patterns in access to alternatives across states and how they might correlate with lower incarceration rates. Interaction effects between MH and SA facility availability will also be explored, as the combination of services may amplify decarceral outcomes.
 
+```{python mh dist}
+#dist of mh facilities
+plt.figure(figsize=(8,5))
+sns.histplot(final_data['MH'], bins=15, kde=True, color='skyblue')
+plt.title("Distribution of Mental Health Facilities", fontsize=12, weight='bold', pad=30)
+plt.text(0.5, 1.02,
+"Most states have a moderate number of mental health facilities,\n"
+"but a few states with high counts create a right-skewed distribution.",
+ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
+plt.figtext(0.01, 0.01, "SOURCE: SAMHSA 2022-2023", ha="left", fontsize=9)
+plt.xlabel("Number of Mental Health Facilities (MH)")
+plt.ylabel("Count")
+plt.savefig("hist_MH.png", dpi=300, bbox_inches='tight')
+plt.show()
 
+```
+
+The histogram shows that most states have a moderate number of mental health facilities, but a few states (the state with the highest facility count being California) have very high counts, creating a right-skewed distribution. This suggests that facility availability is concentrated in a small number of states rather than evenly distributed nationwide.
+
+```{python sa dist}
+#dist of sa facilities
+plt.figure(figsize=(8,5))
+sns.histplot(final_data['SA'], bins=15, kde=True, color='paleturquoise')
+plt.title("Distribution of Substance Abuse Facilities", fontsize=12, weight='bold', pad=30)
+plt.text(0.5, 1.02,
+"Most states have relatively few substance abuse facilities,\n"
+"while a small number of states have many creating a significant right-skew.",
+ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
+plt.figtext(0.01, 0.01, "SOURCE: SAMHSA 2022-2023", ha="left", fontsize=9)
+plt.xlabel("Number of Substance Abuse Facilities (SA)")
+plt.ylabel("Count")
+plt.savefig("hist_SA.png", dpi=300, bbox_inches='tight')
+plt.show()
+
+```
+
+Similarly, most states have relatively few substance abuse facilities, while a small number of states have many, again resulting in a pronounced right-skew. The distribution highlights disparities in access to treatment services, with certain states disproportionately well-resourced.
+
+These skewed distributions emphasize that average facility counts may mask substantial variation across states. California stands out as an extreme case with high facility availability, which may influence analyses of facility effects on incarceration.
 
 ```{python EDA 2}
 #scatter MH vs avg jail pop
 plt.figure(figsize=(8,5))
 sns.scatterplot(data=final_data, x='MH', y='avg_jail_pop', hue='year', palette='tab10')
-plt.title("Mental Health Facilities vs Average Jail Population")
+plt.title("Mental Health Facilities vs Average Incarcerated Population", fontsize=12, weight='bold', pad=30)
+plt.text(0.5, 1.02,"There is a positive association between mental health\nfacilities and average incarceration population.",ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
+plt.figtext(0.01, 0.01, "SOURCE: BJS & SAMHSA 2022,2023", ha="left", fontsize=9)
 plt.xlabel("Number of Mental Health Facilities (MH)")
-plt.ylabel("Average Jail Population")
-plt.legend(title="Year")
+plt.ylabel("Average Incarcerated Population")
+plt.legend(title="Year", loc='upper right')
 plt.savefig("scatter_MH_vs_jail.png", dpi=300, bbox_inches='tight')
 plt.show()
 ```
 
+This graph presents the relationship between the number of mental health facilities in a state and the average incarcerated population. Interestingly, the scatterplot shows a positive association, indicating that states with more MH facilities also tend to have higher incarceration levels. This counterintuitive result likely reflects state size and population, as larger states naturally have both more treatment facilities and more individuals in the carceral system.
 
+The plot also highlights the year-to-year consistency of this relationship, with 2022 and 2023 points following similar patterns. While this initial visualization does not imply causation, it underscores the importance of controlling for population size, demographics, and other state-level factors in subsequent regression models to isolate the potential decarceral effect of mental health facility availability.
 
+Finally, the trend suggests that higher-population states (likely those with larger incarcerated population) may have a greater need to expand alternative treatment programs to reduce reliance on incarceration and provide more effective rehabilitation options- in this case, mental health treatment facilities.
 
+However, Texas is a notable outlier with the highest average incarcerated population and a moderate/ high level of mental health facilities. This is especially obvious when considering California's contrasing proportion of incarcerated population and mental health facilities.
 
 ```{python EDA 3}
 #scatter SA vs avg jail pop
 plt.figure(figsize=(8,5))
 sns.scatterplot(data=final_data, x='SA', y='avg_jail_pop', hue='year', palette='tab10')
-plt.title("Substance Abuse Facilities vs Average Jail Population")
+plt.title("Substance Abuse Facilities vs Average Incarcerated Population", fontsize=12, weight='bold', pad=30)
+plt.text(0.5, 1.02,"There is a positive association between substance abuse\n""facilities and average incarceration popultation.",ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
+plt.figtext(0.01, 0.01, "SOURCE: BJS & SAMHSA 2022,2023", ha="left", fontsize=9)
 plt.xlabel("Number of Substance Abuse Facilities (SA)")
-plt.ylabel("Average Jail Population")
-plt.legend(title="Year")
+plt.ylabel("Average Incarcerated Population")
+plt.legend(title="Year", loc='upper right')
 plt.savefig("scatter_SA_vs_jail.png", dpi=300, bbox_inches='tight')
 plt.show()
 ```
 
+This graph presents the relationship between the number of substance abuse treatment facilities in a state and the average incarcerated population. Similar to the mental health scatterplot, there is a positive association in this plot, indicating that states with more substance abuse facilities also tend to have higher incarceration levels. This pattern likely reflects state size and population, as larger states naturally have both more treatment facilities and more individuals in the carceral system.
 
+The plot also demonstrates year-to-year consistency, with 2022 and 2023 points following comparable trends. While this visualization does not establish causation, it highlights the necessity of controlling for population size, demographics, and other state-level factors in regression models to isolate the potential decarceral impact of substance abuse treatment availability.
 
+Like with mental health facilities, the trend suggests that higher-population states may have a greater need to expand alternative treatment programs to reduce reliance on incarceration and provide more effective rehabilitation options—in this case, substance abuse treatment facilities.
 
+However, Texas is a notable outlier with the highest average incarcerated population and a moderate/ high level of mental health facilities. This is especially obvious when considering California's contrasting proportion of incarcerated population and mental health facilities.
 
-## Modeling
+I also believe it is significant that there are many more substance abuse treatment facilities across U.S. states than mental health behavioral clinics. I believe this is due in large part to bias against mental health as a legitimate health issue, though more research is necessary to draw a causal conclusion.
+
+```{python corr heatmap}
+#corr vars
+predictors_corr = ['MH', 'SA', 'pct_white', 'pct_black', 'pct_aian', 
+                   'pct_asian', 'pct_nhpi', 'pct_hispanic', 'female_pop']
+
+#make corr matrix
+corr_matrix = final_data[predictors_corr].corr()
+
+#plot corr matrix
+plt.figure(figsize=(10,8))
+sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap='coolwarm', cbar_kws={'label': 'Correlation'})
+plt.title("Correlation Heatmap of Main Predictors", fontsize=12, weight='bold', pad=30)
+plt.xticks(rotation=45, ha='right')
+plt.yticks(rotation=0)
+plt.tight_layout()
+plt.savefig("correlation_heatmap_predictors.png", dpi=300, bbox_inches='tight')
+plt.show()
+```
+
+The correlation matrix heatmap shows correlations among main predictors and average carceral population. Mental health and substance abuse facility counts are strongly positively correlated with each other, with percent white population, and with the female incarcerated population. Average carceral population is also highly correlated with each of these predictors. These patterns highlight the importance of controlling for demographic and population factors in regression analyses to isolate the potential decarceral effect of treatment facilities.
+
+# Modeling
+
+Before estimating regression models, it is critical to assess potential multicollinearity among predictors. Multicollinearity can inflate standard errors and make it difficult to isolate the effect of each variable. For this project, the predictors include the number of mental health and substance abuse facilities, racial/ethnic composition percentages, and the female incarcerated population.
+
+To quantify multicollinearity, Variance Inflation Factors (VIFs) were calculated for each predictor. VIF values above 5–10 are typically considered problematic, indicating that a variable is highly correlated with others in the model. Computing VIFs allows us to identify and, if necessary, adjust or remove highly collinear variables before fitting the main regression models.
+
+Additionally, the dataset is restructured as a panel dataset with a multi-index of state_abbrev and year, which is necessary for estimating Panel Ordinary Least Squares (PanelOLS) models. This setup allows the models to account for both cross-sectional (state-level) and temporal (yearly) variation, which is important for isolating the potential effects of alternative treatment programs on incarceration while controlling for state-specific and year-specific factors.
 
 ```{python prep for modeling}
+#create interaction terms
+final_data['MHxSA'] = final_data['MH'] * final_data['SA']
+final_data['MHxpct_black'] = final_data['MH'] * final_data['pct_black']
+final_data['MHxfemale_pop'] = final_data['MH'] * final_data['female_pop']
+
 #predictors for VIF check
-predictors = ['MH', 'SA', 'pct_white', 'pct_black', 'pct_aian','pct_asian', 'pct_nhpi', 'pct_hispanic','female_pop']
+predictors = ['MH', 'SA', 'pct_white', 'pct_black', 'pct_aian','pct_asian', 'pct_nhpi', 'pct_hispanic','female_pop', 'MHxSA', 'MHxpct_black', 'MHxfemale_pop']
 
 #drop missing
 X = final_data[predictors].dropna()
@@ -344,25 +538,61 @@ X_const = sm.add_constant(X)
 #compute VIFs
 vif_data = pd.DataFrame({"variable": X_const.columns, "VIF": [variance_inflation_factor(X_const.values, i) for i in range(X_const.shape[1])]})
 print(vif_data)
+```
+
+To better capture the combined effects of mental health and substance abuse services, as well as potential differential effects by race or gender, several interaction terms were created:
+
+1.  MHxSA: Interaction between mental health and substance abuse facilities, capturing the joint availability effect.
+
+2.  MHxpct_black: Interaction between mental health facilities and the percentage of the Black population.
+
+3.  MHxfemale_pop: Interaction between mental health facilities and the female incarcerated population.
+
+After creating these interactions, Variance Inflation Factors (VIFs) were calculated to check for multicollinearity. The VIF results showed very high values for the pct_white, MHxpct_black and MHxfemale_pop interactions, indicating strong multicollinearity with other predictors. High multicollinearity can destabilize coefficient estimates and reduce interpretability.
+
+To improve model stability and interpretability, these two interaction terms were removed from the set of predictors, leaving only MHxSA as the primary interaction term. High multicollinearity between this interaction term and the invidual variables is to be expected, and as these are the primary independent variables, I chose to keep the MHxSA interaction term. This decision balances capturing meaningful interactions while avoiding excessive redundancy among variables.
+
+```{python vif take 2}
+#predictors for 2nd VIF check
+predictors_2 = ['MH', 'SA', 'pct_black', 'pct_aian','pct_asian', 'pct_nhpi', 'pct_hispanic','female_pop', 'MHxSA']
+
+#drop missing
+X_2 = final_data[predictors_2].dropna()
+
+#add constant
+X_const_2 = sm.add_constant(X_2)
+
+#compute VIFs
+vif_data_2 = pd.DataFrame({"variable": X_const_2.columns, "VIF": [variance_inflation_factor(X_const_2.values, i) for i in range(X_const_2.shape[1])]})
+print(vif_data_2)
 
 #panelOLS requires multi-index
 final_data = final_data.set_index(['state_abbrev','year'])
 y = final_data['avg_jail_pop']
 ```
 
+After removing the highly collinear variables (pct_white, MHxpct_black, and MHxfemale_pop), the set of predictors was narrowed to the following variables: MH, SA, pct_black, pct_aian, pct_asian, pct_nhpi, pct_hispanic, female_pop, and MHxSA.
 
+A second VIF check was performed to ensure that multicollinearity was sufficiently reduced. The results showed that all variables now had more acceptable VIF values, with most below 12 and all below the extreme values seen previously. This refinement confirms that the model is now stable and interpretable, allowing us to proceed with PanelOLS regressions that include fixed effects for state and year while examining the impact of alternative treatment facilities on incarceration levels.
 
+## Model 1
 
 ```{python modeling 1}
 #model 1: MH + SA counts only
 X1 = final_data[['MH','SA']]
-mod1 = PanelOLS(y, X1, entity_effects=False, time_effects=False).fit(cov_type='clustered', cluster_entity=True)
+mod1 = PanelOLS(y, X1, entity_effects=False, time_effects=False).fit(cov_type='clustered', cluster_entity=False)
 print(mod1.summary)
 ```
 
+The first model examines the relationship between incarceration levels (avg_jail_pop) and the number of alternative treatment facilities (MH and SA), without controlling for state-level fixed effects or demographic variables.
 
+Both MH and SA facility counts have positive and statistically significant associations with average jail population: *MH coefficient = 66.99 (p = 0.0055)*, *SA coefficient = 39.94 (p = 0.0122).*
 
+These results suggest that states with more mental health or substance abuse facilities tend to have higher average incarceration populations. While this may seem counterintuitive at first glance, it likely reflects the fact that states with higher incarceration burdens also invest more in alternative treatment programs, rather than implying causation in the opposite direction.
 
+Model 1's R-squared is 0.66, indicating that roughly 66% of the variance in average jail population is explained by these two predictors alone. This model serves as a baseline to establish the direct relationship between treatment facilities and incarceration levels.
+
+## Model 2
 
 ```{python modeling 2}
 #model 2: State FE + MH + SA
@@ -370,9 +600,13 @@ mod2 = PanelOLS(y, X1, entity_effects=True, time_effects=False).fit(cov_type='cl
 print(mod2.summary)
 ```
 
+In the second model, we incorporate state fixed effects to account for unobserved, time-invariant characteristics of each state that could influence incarceration levels (e.g., long-standing criminal justice policies, cultural factors, or baseline incarceration infrastructure). This allows us to isolate the within-state variation over time in mental health and substance abuse facilities.
 
+The coefficients for MH and SA are no longer statistically significant: *MH = -5.79 (p = 0.25),* *SA = 1.52 (p = 0.79),* and the within-state R-squared is very low (0.028), indicating that only a small fraction of the variation in incarceration counts within states over 2022–2023 is explained by changes in MH or SA facilities.
 
+Once state-specific factors are accounted for, the positive association observed in Model 1 disappears. This suggests that much of the initial positive relationship between treatment facilities and incarceration levels was driven by differences across states, rather than the effect of facility counts within a state over time. In other words, states with generally higher incarceration populations also tend to have more treatment facilities, but year-to-year increases in facilities within a state do not appear to reduce incarceration levels in this two-year snapshot.
 
+## Model 3
 
 ```{python modeling 3}
 #model 3: State FE + Counts + Demographics + female_pop + Interaction
@@ -383,6 +617,25 @@ mod3 = PanelOLS(y, X3, entity_effects=True, time_effects=False).fit(cov_type='cl
 print(mod3.summary)
 ```
 
+Model 3 extends Model 2 by adding demographic controls (racial composition and female population) and the interaction term MHxSA to test for potential synergistic effects between mental health and substance abuse facilities. State fixed effects remain included to account for time-invariant differences across states.
+
+Variable significance was very interesting in Model 3:
+
+-   MH: Positive and statistically significant; suggests that states with more mental health facilities are associated with slightly higher incarceration counts.
+
+-   SA: Positive but marginally significant; suggests that states with more substance abuse facilities are associated with slightly higher incarceration counts.
+
+-   MHxSA: Negative and significant; suggests the combined effect of both alternative treatment programs may slightly dampen incarceration counts.
+
+-   pct_black: The percent of black population is strongly positive and significant, but no other racial variable was statistically significant; suggests persistent racial disparities in incarceration rates.
+
+-   Female population: Highly significant; suggests that higher female populations correlate with higher total incarceration counts, likely reflecting proportional scaling of overall carceral populations.
+
+The within-state R-squared = 0.782, showing strong explanatory power for year-to-year variation within states. While the main effects of MH and SA facilities are modest, the negative interaction effect indicates that a combined presence of mental health and substance abuse treatment programs may be associated with reduced incarceration counts relative to what would be expected from each alone. Demographic controls reveal persistent structural inequalities, particularly along racial lines, emphasizing that decarceral policy interventions may operate differently across communities.
+
+Overall, these results provide tentative statistical support for the strategic deployment of complementary treatment programs as a decarceral policy measure, although the effects are small in magnitude over a two-year period.
+
+## Coefficients Table
 
 ```{python model coefs table}
 #function to extract coefficients for presentation
@@ -405,9 +658,13 @@ coef_all = pd.concat([
 print(coef_all)
 ```
 
+Across the three models, the pattern of statistical significance shifts as additional controls and fixed effects are introduced. In Model 1, both mental health facilities and substance abuse facilities are highly significant predictors of incarceration levels, reflecting strong cross-state associations. However, once state fixed effects are added in Model 2, neither MH nor SA remains significant, indicating that within-state year-to-year changes in facility counts do not meaningfully predict changes in incarceration.
 
+Several predictors become significant in Model 3. MH regains significance, SA becomes moderately significant at, and their interaction term is also significant. Among demographic controls, percent black and female population are highly significant, but other demographic variables do not reach statistical significance.
 
-## Model Evaluation
+Overall, significance is strong in the simplest model, disappears once state heterogeneity is controlled for, and re-emerges for specific variables when richer covariates and interaction effects are included.
+
+# Model Evaluation
 
 ```{python model eval prep}
 #panel data needs to be "demeaned" to evaluate models
@@ -425,7 +682,7 @@ def demean_panel(X, y, entity=None, time=None):
 #get CV-RMSE function
 def cv_rmse_panel(X, y, entity=None, time=None, n_splits=5):
     X_d, y_d = demean_panel(X, y, entity, time)
-    kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=45)
     rmses = []
     for train_idx, test_idx in kf.split(X_d):
         model = LinearRegression().fit(X_d.iloc[train_idx], y_d.iloc[train_idx])
@@ -450,170 +707,125 @@ def compute_aic_bic(residuals, num_params):
 #pull panel indices
 state_index = final_data.index.get_level_values('state_abbrev').to_series()
 time_index = final_data.index.get_level_values('year').to_series()
-```
-
-
-```{python model eval 1}
 
 #calculate CV-RMSE for models
 rmse1 = cv_rmse_panel(X1, y)                          
 rmse2 = cv_rmse_panel(X1, y, entity='state_abbrev')  
-rmse3 = cv_rmse_panel(X3, y, entity='state_abbrev')      
+rmse3 = cv_rmse_panel(X3, y, entity='state_abbrev')  
+```
 
+To rigorously assess model performance, I evaluate each specification using metrics tailored to panel data. Because state fixed effects remove all time-invariant differences across states, I first demean both predictors and the outcome by entity to ensure that evaluation metrics reflect true within-state variation. I then compute cross-validated RMSE (CV-RMSE) on the demeaned data to estimate out-of-sample predictive accuracy. To compare model fit while penalizing complexity, I calculate AIC and BIC from each model’s residual log-likelihood. Finally, I incorporate the model F-statistic and its p-value to assess whether the included predictors jointly contribute meaningfully to explaining variation in incarceration levels. Together, CV-RMSE, AIC, BIC, and the F-tests provide a comprehensive evaluation of the three model specifications and allow me to determine whether added complexity substantively improves explanatory and predictive strength. I pull those statistics and format it into a readable table in the next code chunk.
+
+## Comparing Model Metrics
+
+```{python model eval 1}
 #model metrics
+panel_models = [mod1, mod2, mod3]
+X_list = [X1, X1, X3]
+entity_list = [None, 'state_abbrev', 'state_abbrev']
+time_list = [None, None, None]
+model_names = [
+    "Model 1: Facility counts only",
+    "Model 2: State FE + Facility counts",
+    "Model 3: State FE + Counts + Demographics + Interactions"]
+cv_list = [rmse1, rmse2, rmse3]
+
 metrics = []
 
-for X, entity, time, name, cv in zip(
-    [X1, X1, X3],
-    [None, 'state_abbrev', 'state_abbrev'],
-    [None, None, None],
-    ["Model 1: Facility counts only", 
-     "Model 2: State FE + Facility counts", 
-     "Model 3: State FE + Facility counts + Demographics + Interactions"],
-    [rmse1, rmse2, rmse3]):
+for X, entity, time, name, cv, panel_model in zip(
+    X_list, entity_list, time_list, model_names, cv_list, panel_models):
     X_d, y_d = demean_panel(X, y, entity, time)
-    model = LinearRegression().fit(X_d, y_d)
-    residuals = y_d - model.predict(X_d)
+    lin_model = LinearRegression().fit(X_d, y_d)
+    residuals = y_d - lin_model.predict(X_d)
     num_params = X_d.shape[1]
     aic, bic = compute_aic_bic(residuals, num_params)
     r2_within = 1 - np.sum(residuals**2)/np.sum((y_d - np.mean(y_d))**2)
+    if panel_model.f_statistic is not None:
+        f_stat = panel_model.f_statistic.stat
+        f_pval = panel_model.f_statistic.pval
+    else:
+        f_stat = np.nan
+        f_pval = np.nan
     metrics.append({
         "Model": name,
         "Fixed Effects": "None" if entity is None else "State",
         "CV_RMSE": cv,
         "R2_Within": r2_within,
         "AIC": aic,
-        "BIC": bic})
+        "BIC": bic,
+        "F-stat": f_stat,
+        "F P-value": f_pval})
 
 metrics_df = pd.DataFrame(metrics)
+metrics_df.to_excel("model_metrics.xlsx", index=False)
 print(metrics_df)
 ```
 
+This table allows me to easily evaluate that Model 3 is the strongest performing model. It has the lowest CV-RMSE and AIC/ BIC, the highest within-state R-squared, and is a significantly statistically significant model. For all of these reasons, I will use the Model 3 structure to train and test the predictive model.
 
-
-
-```{python model eval 2}
-
-#coefficients for presentation
-def extract_coefs(model, model_name):
-    df = pd.DataFrame({
-        'Variable': model.params.index,
-        'Coefficient': model.params.values,
-        'Std. Error': model.std_errors.values,
-        'T-stat': model.tstats.values,
-        'P-value': model.pvalues.values})
-    df['Significance'] = df['P-value'].apply(lambda p: '***' if p<0.01 else '**' if p<0.05 else '*' if p<0.1 else '')
-    df['Model'] = model_name
-    return df
-
-#combine coefficients into one table for readability
-coef_all = pd.concat([
-    extract_coefs(mod1, "Model 1: MH + SA Counts Only"),
-    extract_coefs(mod2, "Model 2: State FE + MH + SA Counts"),
-    extract_coefs(mod3, "Model 3: State FE + Counts + Demographics + Interactions")],
-    ignore_index=True)
-
-print(coef_all)
-```
-
-```{python model eval 3}
-
-
-```
-
-## Prediction
+## Training, Testing & Prediction
 
 ```{python prep to predict}
-#remove index in order to run this prediction
-df_2024 = final_data.reset_index()
-df_2024 = df_2024[df_2024['year'] == 2023].copy()
-df_2024['year'] = 2024
-
-#restore multi-index
-df_2024.set_index(['state_abbrev','year'], inplace=True)
-
-#create interaction term
-df_2024['MHxSA'] = df_2024['MH'] * df_2024['SA']
-
-#pick vars
-X_pred = df_2024[['MH','SA','MHxSA','pct_black','pct_aian','pct_asian','pct_nhpi','pct_hispanic','female_pop']]
-
-#use model 3 coefs for prediction
-coefs = mod3.params
-df_2024['pred_avg_jail_pop'] = (
-    X_pred['MH']*coefs.get('MH',0) +
-    X_pred['SA']*coefs.get('SA',0) +
-    X_pred['MHxSA']*coefs.get('MHxSA',0) +
-    X_pred['pct_black']*coefs.get('pct_black',0) +
-    X_pred['pct_aian']*coefs.get('pct_aian',0) +
-    X_pred['pct_asian']*coefs.get('pct_asian',0) +
-    X_pred['pct_nhpi']*coefs.get('pct_nhpi',0) +
-    X_pred['pct_hispanic']*coefs.get('pct_hispanic',0) +
-    X_pred['female_pop']*coefs.get('female_pop',0))
-
-print(df_2024[['pred_avg_jail_pop']])
-```
-
-
-```{python train}
-#test/ train
+#build training dataset 
 panel_df = final_data.reset_index().copy()
-
-#create interaction term
 panel_df['MHxSA'] = panel_df['MH'] * panel_df['SA']
 
-#define features and target for model 3
-X_vars = ['MH','SA','MHxSA','pct_black','pct_aian','pct_asian','pct_nhpi','pct_hispanic','female_pop']
-y_var = 'avg_jail_pop'
-
-#75/25 train-test split
-train_idx, test_idx = train_test_split(panel_df.index, test_size=0.25, random_state=42)
+#test train split 
+train_idx, test_idx = train_test_split(panel_df.index, test_size=0.3, random_state=45)
 train_panel = panel_df.loc[train_idx].set_index(['state_abbrev','year'])
 test_panel = panel_df.loc[test_idx].set_index(['state_abbrev','year'])
 
-#define  features and target
-y_train = train_panel[y_var]
+#define predictors and targets
 X_train = train_panel[X_vars]
-y_test = test_panel[y_var]
+y_train = train_panel[y_var]
 X_test = test_panel[X_vars]
-
-#now train
-
-model_train_FE = PanelOLS(y_train, X_train, entity_effects=True).fit(
-    cov_type='clustered', cluster_entity=True)
-print(model_train_FE.summary)
+y_test = test_panel[y_var]
 ```
 
-## Testing
+Using Model 3 (State fixed effects + facility counts + demographics + interaction), I projected the average prison and jail population for 2024 as it would be found in the next BJS report. While this is not a causal forecast, it provides a useful baseline for policymakers considering resource allocation for mental health and substance abuse services relative to jail populations. In the next code chunk, I train and test the predictive model.
 
-```{python test}
-#now predict
+```{python train/ test}
+#train 
+model_train_FE = PanelOLS(y_train, X_train, entity_effects=True).fit(cov_type='clustered', cluster_entity=True)
+
+#test model 
 y_pred_test = model_train_FE.predict(X_test)
-print(y_pred_test)
-```
-
-
-```{python test eval}
-#how did we do?
 rmse_test = np.sqrt(mean_squared_error(y_test, y_pred_test))
 r2_test = r2_score(y_test, y_pred_test)
-print(f"Test Set RMSE: {rmse_test:.2f}")
-print(f"Test Set R²: {r2_test:.3f}")
 
-#save it
-test_results_FE = X_test.copy()
-test_results_FE['actual_jail_pop'] = y_test
-test_results_FE['predicted_jail_pop'] = y_pred_test
-test_results_FE.to_csv("train_test_predictions_state_FE.csv")
+#how did we do?
+print("RMSE:\n",rmse_test)
+print("R-squared:\n",r2_test)
 ```
 
+After training the panel model on 70% of the data, we evaluated its predictive performance on the remaining 30% held-out test set. The model explains a substantial portion of within-state variation in average jail population over 2022–2023. On the test set, the root mean squared error was approximately 21,023, and the R-squared was 0.54, indicating that about 54% of the variation in jail population across the test data is captured by the model.
 
-## Conclusion
+Overall, the model demonstrates reasonable predictive performance on unseen data and suggests that while counts of mental health and substance abuse facilities are weak predictors on their own, their combined presence may have modest decarceral effects, with the female incarcerated population remaining the strongest driver of total jail population. I used this trained and tested model to predict the BJS 2024 average prison and jail populations in the next code chunk.
 
+```{python predict}
+#now predict
+df_2024 = final_data.reset_index()
+df_2024 = df_2024[df_2024['year'] == 2023].copy()
+df_2024['year'] = 2024
+df_2024.set_index(['state_abbrev','year'], inplace=True)
+df_2024['MHxSA'] = df_2024['MH'] * df_2024['SA']
+predictors = X_train.columns
+df_2024['pred_avg_jail_pop'] = model_train_FE.predict(df_2024[predictors])
+print(df_2024[['pred_avg_jail_pop']].head())
+```
 
+Once the BJS 2024 summary tables are released, I will be able to compare how well the predictions in my model compare against the actual average prison and jail populations.
 
+# Conclusion
 
-## References
+This analysis supports the notion that strategic deployment of complementary alternative treatment programs can play a role in decarceration, though the effects are modest over a short time horizon. Policymakers should consider facility availability in combination with demographic and state-specific factors when designing interventions. While simple counts of MH and SA facilities are insufficient to fully explain incarceration trends, interaction effects and demographic context provide actionable insights for reducing jail populations, particularly in high-incarceration states. However, the analysis is limited by short-term, aggregated state-level data and the absence of individual-level outcomes, which constrains causal interpretation. Future analyses could strengthen causal inference by incorporating individual-level, longitudinal, and local policy data.
 
+# References
 
+1.  Bureau of Justice Statistics (BJS). (2022–2023). *Correctional populations in the United States*. U.S. Department of Justice. https://www.bjs.gov
 
+2.  Substance Abuse and Mental Health Services Administration (SAMHSA). (2022–2023). *Behavioral health treatment services locator dataset*. U.S. Department of Health and Human Services. https://www.samhsa.gov/data
+
+3.  U.S. Census Bureau. (2022). *American Community Survey 1-year estimates*. https://www.census.gov/programs-surveys/acs
+
+4.  U.S. Census Bureau. (2023). *American Community Survey 1-year estimates*. https://www.census.gov/programs-surveys/acs
