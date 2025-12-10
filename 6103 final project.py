@@ -451,6 +451,10 @@ metrics_df.to_excel("model_metrics.xlsx", index=False)
 print(metrics_df)
 
 #build training dataset 
+y_var = 'avg_jail_pop'
+X_vars = ['MH', 'SA', 'MHxSA',
+          'pct_black', 'pct_aian', 'pct_asian',
+          'pct_nhpi', 'pct_hispanic', 'female_pop']
 panel_df = final_data.reset_index().copy()
 panel_df['MHxSA'] = panel_df['MH'] * panel_df['SA']
 
