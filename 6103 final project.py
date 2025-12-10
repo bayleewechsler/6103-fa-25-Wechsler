@@ -1,4 +1,4 @@
-#6103 final project 
+#6103 final project code
 
 import pandas as pd
 import numpy as np
@@ -12,7 +12,6 @@ from linearmodels.panel import PanelOLS
 import seaborn as sns
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
 import requests
 
 #set working directory
@@ -197,7 +196,7 @@ acs_state_race_clean = acs_state_race_clean[[
 
 print(acs_state_race_clean.head())
 
-#prepare BJS/SAMHSA for final merge
+#prep BJS/SAMHSA for final merge
 bjs_samhsa_clean = bjs_samhsa.rename(columns={'Year': 'year'})
 
 #merge all data
@@ -214,19 +213,7 @@ summary_table.to_excel(os.path.join(data_dir, "final_data_summary_stats.xlsx"), 
 print(summary_table)
 
 
-
-
-
-
-
-
-
-
-
-#EDA
-
-
-#histm of avg carc pop
+#histm of avg jail population
 plt.figure(figsize=(8,5))
 sns.histplot(final_data['avg_jail_pop'], bins=15, kde=True)
 plt.title("Distribution of Average Incarcerated Population", fontsize=12, weight='bold', pad=30)
@@ -237,7 +224,7 @@ plt.ylabel("Count")
 plt.savefig("hist_avg_jail_pop.png", dpi=300, bbox_inches='tight')
 plt.show()
 
-#dist of mh facilities 
+#dist of mh facilities
 plt.figure(figsize=(8,5))
 sns.histplot(final_data['MH'], bins=15, kde=True, color='skyblue')
 plt.title("Distribution of Mental Health Facilities", fontsize=12, weight='bold', pad=30)
@@ -251,8 +238,7 @@ plt.ylabel("Count")
 plt.savefig("hist_MH.png", dpi=300, bbox_inches='tight')
 plt.show()
 
-
-#dist of sa facilities 
+#dist of sa facilities
 plt.figure(figsize=(8,5))
 sns.histplot(final_data['SA'], bins=15, kde=True, color='paleturquoise')
 plt.title("Distribution of Substance Abuse Facilities", fontsize=12, weight='bold', pad=30)
@@ -266,38 +252,36 @@ plt.ylabel("Count")
 plt.savefig("hist_SA.png", dpi=300, bbox_inches='tight')
 plt.show()
 
-
-#scatter MH vs avg carc pop
+#scatter MH vs avg jail pop
 plt.figure(figsize=(8,5))
 sns.scatterplot(data=final_data, x='MH', y='avg_jail_pop', hue='year', palette='tab10')
-plt.title("Mental Health Facilities vs Average Carceral Population", fontsize=12, weight='bold', pad=30)
-plt.text(0.5, 1.02,"There is a positive association between mental health\nfacilities and average incarceration population.", ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
+plt.title("Mental Health Facilities vs Average Incarcerated Population", fontsize=12, weight='bold', pad=30)
+plt.text(0.5, 1.02,"There is a positive association between mental health\nfacilities and average incarceration population.",ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
 plt.figtext(0.01, 0.01, "SOURCE: BJS & SAMHSA 2022,2023", ha="left", fontsize=9)
 plt.xlabel("Number of Mental Health Facilities (MH)")
-plt.ylabel("Average Jail Population")
+plt.ylabel("Average Incarcerated Population")
 plt.legend(title="Year", loc='upper right')
 plt.savefig("scatter_MH_vs_jail.png", dpi=300, bbox_inches='tight')
 plt.show()
 
-#scatter SA vs avg carc pop
+#scatter SA vs avg jail pop
 plt.figure(figsize=(8,5))
 sns.scatterplot(data=final_data, x='SA', y='avg_jail_pop', hue='year', palette='tab10')
-plt.title("Substance Abuse Facilities vs Average Carceral Population", fontsize=12, weight='bold', pad=30)
+plt.title("Substance Abuse Facilities vs Average Incarcerated Population", fontsize=12, weight='bold', pad=30)
 plt.text(0.5, 1.02,"There is a positive association between substance abuse\n""facilities and average incarceration popultation.",ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
 plt.figtext(0.01, 0.01, "SOURCE: BJS & SAMHSA 2022,2023", ha="left", fontsize=9)
 plt.xlabel("Number of Substance Abuse Facilities (SA)")
-plt.ylabel("Average Jail Population")
+plt.ylabel("Average Incarcerated Population")
 plt.legend(title="Year", loc='upper right')
 plt.savefig("scatter_SA_vs_jail.png", dpi=300, bbox_inches='tight')
 plt.show()
 
-#correlation heatmap
 #corr vars
-vars_corr = ['avg_jail_pop', 'MH', 'SA', 'pct_white', 'pct_black', 'pct_aian', 
+predictors_corr = ['MH', 'SA', 'pct_white', 'pct_black', 'pct_aian', 
                    'pct_asian', 'pct_nhpi', 'pct_hispanic', 'female_pop']
 
 #make corr matrix
-corr_matrix = final_data[vars_corr].corr()
+corr_matrix = final_data[predictors_corr].corr()
 
 #plot corr matrix
 plt.figure(figsize=(10,8))
@@ -308,16 +292,6 @@ plt.yticks(rotation=0)
 plt.tight_layout()
 plt.savefig("correlation_heatmap_predictors.png", dpi=300, bbox_inches='tight')
 plt.show()
-
-
-
-
-
-
-
-
-
-#modelling 
 
 #create interaction terms
 final_data['MHxSA'] = final_data['MH'] * final_data['SA']
@@ -356,7 +330,7 @@ y = final_data['avg_jail_pop']
 
 #model 1: MH + SA counts only
 X1 = final_data[['MH','SA']]
-mod1 = PanelOLS(y, X1, entity_effects=False, time_effects=False).fit(cov_type='clustered', cluster_entity=True)
+mod1 = PanelOLS(y, X1, entity_effects=False, time_effects=False).fit(cov_type='clustered', cluster_entity=False)
 print(mod1.summary)
 
 #model 2: State FE + MH + SA
@@ -388,16 +362,6 @@ coef_all = pd.concat([
     extract_coefs(mod2, "Model 2"),
     extract_coefs(mod3, "Model 3")], ignore_index=True)
 print(coef_all)
-
-
-
-
-
-
-
-
-
-#model efficacy 
 
 #panel data needs to be "demeaned" to evaluate models
 def demean_panel(X, y, entity=None, time=None):
@@ -443,7 +407,7 @@ time_index = final_data.index.get_level_values('year').to_series()
 #calculate CV-RMSE for models
 rmse1 = cv_rmse_panel(X1, y)                          
 rmse2 = cv_rmse_panel(X1, y, entity='state_abbrev')  
-rmse3 = cv_rmse_panel(X3, y, entity='state_abbrev')      
+rmse3 = cv_rmse_panel(X3, y, entity='state_abbrev')  
 
 #model metrics
 panel_models = [mod1, mod2, mod3]
@@ -483,9 +447,9 @@ for X, entity, time, name, cv, panel_model in zip(
         "F P-value": f_pval})
 
 metrics_df = pd.DataFrame(metrics)
+metrics_df.to_excel("model_metrics.xlsx", index=False)
 print(metrics_df)
 
-##predict 2024 using model 3 data 
 #build training dataset 
 panel_df = final_data.reset_index().copy()
 panel_df['MHxSA'] = panel_df['MH'] * panel_df['SA']
@@ -510,10 +474,10 @@ rmse_test = np.sqrt(mean_squared_error(y_test, y_pred_test))
 r2_test = r2_score(y_test, y_pred_test)
 
 #how did we do?
-print(rmse_test)
-print(r2_test)
+print("RMSE:\n",rmse_test)
+print("R-squared:\n",r2_test)
 
-#predict 2024
+#now predict
 df_2024 = final_data.reset_index()
 df_2024 = df_2024[df_2024['year'] == 2023].copy()
 df_2024['year'] = 2024
@@ -522,7 +486,3 @@ df_2024['MHxSA'] = df_2024['MH'] * df_2024['SA']
 predictors = X_train.columns
 df_2024['pred_avg_jail_pop'] = model_train_FE.predict(df_2024[predictors])
 print(df_2024[['pred_avg_jail_pop']].head())
-
-
-
-
